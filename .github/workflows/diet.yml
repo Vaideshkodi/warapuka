@@ -2,8 +2,8 @@ name: Daily Diet WhatsApp
 
 on:
   schedule:
-    - cron: '10 * * * *'   # runs at 07:30 JST = 22:30 UTC
-  workflow_dispatch:         # allows manual trigger
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
 
 jobs:
   send-message:
