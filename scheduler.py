@@ -38,4 +38,10 @@ if key in plan:
     )
     print(f"Message sent: {msg}")
 else:
+    message = client.messages.create(
+        body="No message at this time ra lovede",
+        from_=from_whatsapp,
+        to=to_whatsapp
+    )
     print("No message scheduled at this time.")
+    
