@@ -16,6 +16,8 @@ jobs:
           python-version: '3.x'
       - name: Install dependencies
         run: pip install twilio python-dotenv
+      - name: Install dependencies
+        run: pip install twilio python-dotenv pytz  
       - name: Run script
         run: python scheduler.py
         env:
