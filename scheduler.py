@@ -1,38 +1,40 @@
-# scheduler.py
 import os
+import csv
 from datetime import datetime
 from twilio.rest import Client
-from dotenv import load_dotenv
-from apscheduler.schedulers.blocking import BlockingScheduler
 
-# load secrets
-load_dotenv()
+# Twilio setup
 account_sid = os.getenv("TWILIO_ACCOUNT_SID")
 auth_token = os.getenv("TWILIO_AUTH_TOKEN")
-FROM = os.getenv("TWILIO_WHATSAPP_FROM")
-TO = os.getenv("RECIPIENT")
+from_whatsapp = os.getenv("TWILIO_WHATSAPP_FROM")
+to_whatsapp = os.getenv("RECIPIENT")
 
 client = Client(account_sid, auth_token)
 
-# 7-day diet messages (replace with your own full plan)
-weekly = {
-    "monday":    "🍎 Monday: Breakfast – Oats & milk; Lunch – 2 chapatis + dal; Dinner – paneer + veggies.",
-    "tuesday":   "🥗 Tuesday: Breakfast – Poha; Lunch – Rice + dal + salad; Dinner – tofu stir-fry.",
-    "wednesday": "🥬 Wednesday: Breakfast – Upma; Lunch – chapati + chole; Dinner – palak paneer.",
-    "thursday":  "🍛 Thursday: Breakfast – Idli + chutney; Lunch – sambhar rice; Dinner – veg pulao.",
-    "friday":    "🥕 Friday: Breakfast – Besan chilla; Lunch – dal + chapati; Dinner – veg khichdi.",
-    "saturday":  "🙏 Saturday fast: Skip morning food. After sunset, vegetarian dinner – sabzi + chapati.",
-    "sunday":    "🍉 Sunday: Breakfast – Fruit bowl; Lunch – rajma chawal; Dinner – paneer tikka + salad.",
-}
+# Read the CSV plan
+plan = {}
+with open("diet_plan.csv", newline="", encoding="utf-8") as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        day = row["weekday"].strip()
+        time = row["time"].strip()
+        message = row["message"].strip()
+        plan[(day, time)] = message
 
-def send_daily():
-    today = datetime.now().strftime("%A").lower()  # e.g. "monday"
-    text = weekly.get(today, "Here is your diet reminder.")
-    msg = client.messages.create(from_=FROM, to=TO, body=text)
-    print(f"Sent {today} message:", msg.sid)
+# Current weekday and time
+now = datetime.now()
+weekday = now.strftime("%A")   # e.g. "Monday"
+time_str = now.strftime("%H:%M")
 
-# Scheduler
-scheduler = BlockingScheduler(timezone="Asia/Tokyo")
-scheduler.add_job(send_daily, "cron", hour=7, minute=30)  # 07:30 AM Tokyo time
-print("Scheduler started... Waiting for daily messages.")
-scheduler.start()
+# Check if we have a message
+key = (weekday, time_str)
+if key in plan:
+    msg = plan[key]
+    message = client.messages.create(
+        body=msg,
+        from_=from_whatsapp,
+        to=to_whatsapp
+    )
+    print(f"Message sent: {msg}")
+else:
+    print("No message scheduled at this time.")
