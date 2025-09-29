@@ -1,5 +1,6 @@
 import os
 import csv
+import pytz
 from datetime import datetime
 from twilio.rest import Client
 
@@ -22,7 +23,7 @@ with open("diet_plan.csv", newline="", encoding="utf-8") as csvfile:
         plan[(day, time)] = message
 
 # Current weekday and time
-now = datetime.now()
+now = datetime.now(pytz.timezone("Asia/Tokyo"))
 weekday = now.strftime("%A")   # e.g. "Monday"
 time_str = now.strftime("%H:%M")
 
