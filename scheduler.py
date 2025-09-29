@@ -28,7 +28,7 @@ now = datetime.now(tz)
 weekday = now.strftime("%A")
 
 # Create ±2 min window
-times_to_check = [(now + timedelta(minutes=i)).strftime("%H:%M") for i in range(-2, 3)]
+times_to_check = [(now + timedelta(minutes=i)).strftime("%H:%M") for i in range(-4, 4)]
 
 # Check if we have a message
 msg = None
