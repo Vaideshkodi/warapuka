@@ -1,7 +1,6 @@
 import os
 import csv
-import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 from twilio.rest import Client
 
 # Twilio setup
@@ -23,25 +22,28 @@ with open("diet_plan.csv", newline="", encoding="utf-8") as csvfile:
         plan[(day, time)] = message
 
 # Current weekday and time
-now = datetime.now(pytz.timezone("Asia/Tokyo"))
-weekday = now.strftime("%A")   # e.g. "Monday"
-time_str = now.strftime("%H:%M")
+now = datetime.now()
+weekday = now.strftime("%A")
+
+# Create ±2 min window (5 minutes total)
+times_to_check = [(now + timedelta(minutes=i)).strftime("%H:%M") for i in range(-2, 3)]
 
 # Check if we have a message
-key = (weekday, time_str)
-if key in plan:
-    msg = plan[key]
-    message = client.messages.create(
-        body=msg,
-        from_=from_whatsapp,
-        to=to_whatsapp
-    )
-    print(f"Message sent: {msg}")
-else:
-    message = client.messages.create(
-        body="No message at this time ra lovede",
-        from_=from_whatsapp,
-        to=to_whatsapp
-    )
-    print("No message scheduled at this time.")
-    
+msg = None
+for t in times_to_check:
+    key = (weekday, t)
+    if key in plan:
+        msg = plan[key]
+        break
+
+if not msg:
+    msg = "No message scheduled at this time."
+
+# Send WhatsApp message
+message = client.messages.create(
+    body=msg,
+    from_=from_whatsapp,
+    to=to_whatsapp
+)
+
+print(f"Message sent: {msg}")
