@@ -1,6 +1,7 @@
 import os
 import csv
 from datetime import datetime, timedelta
+import pytz
 from twilio.rest import Client
 
 # Twilio setup
@@ -21,11 +22,12 @@ with open("diet_plan.csv", newline="", encoding="utf-8") as csvfile:
         message = row["message"].strip()
         plan[(day, time)] = message
 
-# Current weekday and time
-now = datetime.now()
+# Use JST timezone (change if you’re in IST or another zone)
+tz = pytz.timezone("Asia/Tokyo")
+now = datetime.now(tz)
 weekday = now.strftime("%A")
 
-# Create ±2 min window (5 minutes total)
+# Create ±2 min window
 times_to_check = [(now + timedelta(minutes=i)).strftime("%H:%M") for i in range(-2, 3)]
 
 # Check if we have a message
@@ -37,7 +39,7 @@ for t in times_to_check:
         break
 
 if not msg:
-    msg = "No message scheduled at this time."
+    msg = f"No message scheduled at this time ra puka. (Checked window: {times_to_check})"
 
 # Send WhatsApp message
 message = client.messages.create(
