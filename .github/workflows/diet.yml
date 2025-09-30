@@ -1,26 +1,26 @@
-name: Daily Diet WhatsApp
+# name: Daily Diet WhatsApp
 
-on:
-  schedule:
-    - cron: "*/30 * * * *"
-  workflow_dispatch:
+# on:
+#   schedule:
+#     - cron: "*/30 * * * *"
+#   workflow_dispatch:
 
-jobs:
-  send-message:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-      - name: Install dependencies
-        run: pip install twilio python-dotenv pytz 
-      - name: Run script
-        run: python scheduler.py
-        env:
-          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
-          RECIPIENT: ${{ secrets.RECIPIENT }}
+# jobs:
+#   send-message:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#       - name: Setup Python
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: '3.x'
+#       - name: Install dependencies
+#         run: pip install twilio python-dotenv pytz 
+#       - name: Run script
+#         run: python scheduler.py
+#         env:
+#           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+#           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+#           TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
+#           RECIPIENT: ${{ secrets.RECIPIENT }}
 
