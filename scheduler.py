@@ -13,6 +13,7 @@ def run_scheduler():
 
     client = Client(account_sid, auth_token)
 
+    # Read the CSV plan
     plan = {}
     with open("diet_plan.csv", newline="", encoding="utf-8") as csvfile:
         reader = csv.DictReader(csvfile)
@@ -22,10 +23,12 @@ def run_scheduler():
             message = row["message"].strip()
             plan[(day, time)] = message
 
+    # Get current time in Tokyo
     tz = pytz.timezone("Asia/Tokyo")
     now = datetime.now(tz)
     weekday = now.strftime("%A")
 
+    # Allow +/- 2 minutes window
     times_to_check = [(now + timedelta(minutes=i)).strftime("%H:%M") for i in range(-2, 3)]
 
     msg = None
@@ -35,5 +38,15 @@ def run_scheduler():
             msg = plan[key]
             break
 
-    if not msg:
-        msg
+    if msg:
+        # ✅ Send WhatsApp message
+        message = client.messages.create(
+            body=msg,
+            from_=from_whatsapp,
+            to=to_whatsapp
+        )
+        print(f"Message sent: {msg}")
+        return f"Message sent: {msg}"
+    else:
+        print("No message scheduled at this time.")
+        return "No message scheduled at this time."
